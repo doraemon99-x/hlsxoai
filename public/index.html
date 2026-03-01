@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DPlayer FLV</title>
+
+<!-- DPlayer -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dplayer/dist/DPlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/dplayer/dist/DPlayer.min.js"></script>
+
+<!-- FLV.js (wajib untuk FLV) -->
+<script src="https://cdn.jsdelivr.net/npm/flv.js@latest/dist/flv.min.js"></script>
+
+<style>
+html, body {
+  margin: 0;
+  height: 100%;
+  background: black;
+}
+#dplayer {
+  width: 100%;
+  height: 100%;
+}
+</style>
+</head>
+
+<body>
+<div id="dplayer"></div>
+
+<script>
+const params = new URLSearchParams(window.location.search)
+const stream = params.get("url") || "https://live1.pro2cdnlive.com/live/channel13.flv"
+
+const dp = new DPlayer({
+  container: document.getElementById('dplayer'),
+  live: true,
+  autoplay: true,
+  video: {
+    url: '/flv?url=' + encodeURIComponent(stream),
+    type: 'flv'
+  }
+})
+
+// Auto reconnect kalau stream drop
+dp.on('error', () => {
+  console.log("DPlayer error, reconnecting...")
+  dp.switchVideo({
+    url: '/flv?url=' + encodeURIComponent(stream),
+    type: 'flv'
+  })
+})
+</script>
+
+</body>
+</html>
