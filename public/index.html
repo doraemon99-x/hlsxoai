@@ -2,13 +2,15 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>DPlayer FLV</title>
+<title>DPlayer Stream</title>
 
-<!-- DPlayer -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dplayer/dist/DPlayer.min.css">
 <script src="https://cdn.jsdelivr.net/npm/dplayer/dist/DPlayer.min.js"></script>
 
-<!-- FLV.js (wajib untuk FLV) -->
+<!-- HLS.js -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<!-- FLV.js -->
 <script src="https://cdn.jsdelivr.net/npm/flv.js@latest/dist/flv.min.js"></script>
 
 <style>
@@ -29,25 +31,41 @@ html, body {
 
 <script>
 const params = new URLSearchParams(window.location.search)
-const stream = params.get("url") || "https://live1.pro2cdnlive.com/live/channel13.flv"
+const stream = params.get("url")
+
+if (!stream) {
+  document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>Missing ?url=</h2>"
+  throw new Error("Missing stream URL")
+}
+
+// Auto detect type
+let type = "auto"
+
+if (stream.includes(".m3u8")) {
+  type = "hls"
+} else if (stream.includes(".flv")) {
+  type = "flv"
+}
 
 const dp = new DPlayer({
   container: document.getElementById('dplayer'),
   live: true,
   autoplay: true,
   video: {
-    url: '/flv?url=' + encodeURIComponent(stream),
-    type: 'flv'
+    url: "/" + type + "?url=" + encodeURIComponent(stream),
+    type: type
   }
 })
 
-// Auto reconnect kalau stream drop
+// Auto reconnect
 dp.on('error', () => {
-  console.log("DPlayer error, reconnecting...")
-  dp.switchVideo({
-    url: '/flv?url=' + encodeURIComponent(stream),
-    type: 'flv'
-  })
+  console.log("Stream error, reconnecting...")
+  setTimeout(() => {
+    dp.switchVideo({
+      url: "/" + type + "?url=" + encodeURIComponent(stream),
+      type: type
+    })
+  }, 3000)
 })
 </script>
 
