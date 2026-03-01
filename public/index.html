@@ -2,11 +2,11 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>JWPlayer Stream</title>
+<title>JWPlayer HLS</title>
 
 <script src="https://ssl.p.jwpcdn.com/player/v/8.31.0/jwplayer.js"></script>
 <script>
-jwplayer.key = "ITWMv7t88JGzI0xPwW8I0+LveiXX9SWbfdmt0ArUSyc=";
+jwplayer.key = "ISI_KEY_KAMU_DI_SINI";
 </script>
 
 <style>
@@ -30,23 +30,17 @@ html, body {
 const params = new URLSearchParams(window.location.search)
 const stream = params.get("url")
 
-if (!stream) {
-  document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>Missing ?url=</h2>"
-  throw new Error("Missing stream URL")
+if (!stream || !stream.includes(".m3u8")) {
+  document.body.innerHTML =
+    "<h2 style='color:white;text-align:center;margin-top:20%'>Invalid or missing HLS URL</h2>"
+  throw new Error("Missing HLS URL")
 }
 
-// Auto detect
-let sourceUrl = stream
-
-if (stream.includes(".m3u8")) {
-  sourceUrl = "/hls?url=" + encodeURIComponent(stream)
-} else if (stream.includes(".flv")) {
-  sourceUrl = "/flv?url=" + encodeURIComponent(stream)
-}
+const sourceUrl = "/hls?url=" + encodeURIComponent(stream)
 
 jwplayer("player").setup({
   file: sourceUrl,
-  type: stream.includes(".m3u8") ? "hls" : "mp4",
+  type: "hls",
   autostart: true,
   width: "100%",
   height: "100%",
