@@ -7,7 +7,7 @@ export async function onRequest(context) {
     return new Response("Missing ?url=", { status: 400 })
   }
 
-  // 🔐 Basic whitelist (EDIT sesuai kebutuhan)
+  // 🔐 DOMAIN WHITELIST (WAJIB EDIT sesuai target kamu)
   const allowedDomains = [
     "golivenow71.com",
     "livecdnem.com"
@@ -23,7 +23,6 @@ export async function onRequest(context) {
 
   try {
     const headers = new Headers()
-
     headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
     headers.set("Referer", "https://xlz.livecdnem.com/")
     headers.set("Origin", "https://xlz.livecdnem.com")
@@ -39,7 +38,7 @@ export async function onRequest(context) {
 
     const contentType = response.headers.get("content-type") || ""
 
-    // 🎯 Kalau playlist (.m3u8) → rewrite
+    // 🎯 Kalau playlist (.m3u8)
     if (
       contentType.includes("application/vnd.apple.mpegurl") ||
       contentType.includes("application/x-mpegURL") ||
@@ -54,7 +53,6 @@ export async function onRequest(context) {
         .map(line => {
           line = line.trim()
 
-          // Skip comment
           if (line.startsWith("#") || line === "") {
             return line
           }
@@ -75,7 +73,7 @@ export async function onRequest(context) {
       })
     }
 
-    // 🎯 Kalau segment (.ts / .m4s)
+    // 🎯 Segment (.ts / .m4s)
     return new Response(response.body, {
       headers: {
         "Content-Type": contentType || "video/mp2t",
