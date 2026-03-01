@@ -2,16 +2,12 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>DPlayer Stream</title>
+<title>JWPlayer Stream</title>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dplayer/dist/DPlayer.min.css">
-<script src="https://cdn.jsdelivr.net/npm/dplayer/dist/DPlayer.min.js"></script>
-
-<!-- HLS.js -->
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
-<!-- FLV.js -->
-<script src="https://cdn.jsdelivr.net/npm/flv.js@latest/dist/flv.min.js"></script>
+<script src="https://ssl.p.jwpcdn.com/player/v/8.31.0/jwplayer.js"></script>
+<script>
+jwplayer.key = "ISI_KEY_KAMU_DI_SINI";
+</script>
 
 <style>
 html, body {
@@ -19,7 +15,7 @@ html, body {
   height: 100%;
   background: black;
 }
-#dplayer {
+#player {
   width: 100%;
   height: 100%;
 }
@@ -27,7 +23,8 @@ html, body {
 </head>
 
 <body>
-<div id="dplayer"></div>
+
+<div id="player"></div>
 
 <script>
 const params = new URLSearchParams(window.location.search)
@@ -38,33 +35,30 @@ if (!stream) {
   throw new Error("Missing stream URL")
 }
 
-// Auto detect type
-let type = "auto"
+// Auto detect
+let sourceUrl = stream
 
 if (stream.includes(".m3u8")) {
-  type = "hls"
+  sourceUrl = "/hls?url=" + encodeURIComponent(stream)
 } else if (stream.includes(".flv")) {
-  type = "flv"
+  sourceUrl = "/flv?url=" + encodeURIComponent(stream)
 }
 
-const dp = new DPlayer({
-  container: document.getElementById('dplayer'),
-  live: true,
-  autoplay: true,
-  video: {
-    url: "/" + type + "?url=" + encodeURIComponent(stream),
-    type: type
-  }
+jwplayer("player").setup({
+  file: sourceUrl,
+  type: stream.includes(".m3u8") ? "hls" : "mp4",
+  autostart: true,
+  width: "100%",
+  height: "100%",
+  primary: "html5"
 })
 
-// Auto reconnect
-dp.on('error', () => {
+// Auto reconnect kalau live drop
+jwplayer().on('error', function() {
   console.log("Stream error, reconnecting...")
-  setTimeout(() => {
-    dp.switchVideo({
-      url: "/" + type + "?url=" + encodeURIComponent(stream),
-      type: type
-    })
+  setTimeout(function() {
+    jwplayer().load([{ file: sourceUrl }])
+    jwplayer().play()
   }, 3000)
 })
 </script>
